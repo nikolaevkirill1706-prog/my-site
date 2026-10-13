@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Регистрация</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            padding: 20px;
+            transition: background 0.5s;
+        }
+        body.special-mode {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+        }
+        .card {
+            background: #fff;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 25px 70px rgba(0,0,0,0.3);
+            width: 100%;
+            max-width: 420px;
+            text-align: center;
+            position: relative;
+            transition: all 0.5s;
+        }
+        .card.special-mode {
+            border: 3px solid #f59e0b;
+            box-shadow: 0 25px 70px rgba(245,158,11,0.4);
+        }
+        .crown-badge {
+            position: absolute;
+            top: -18px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: #fff;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(245,158,11,0.4);
+            display: none;
+        }
+        .crown-badge.show { display: block; animation: popIn 0.5s; }
+        h1 { margin-bottom: 10px; color: #333; font-size: 22px; }
+        .subtitle { color: #888; font-size: 14px; margin-bottom: 25px; }
+        .subtitle b { color: #667eea; }
+        .card.special-mode .subtitle b { color: #d97706; }
+        .input-group {
+            text-align: left;
+            margin-bottom: 15px;
+        }
+        .input-group label {
+            display: block;
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+        .text-input {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #ddd;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: border 0.3s;
+            font-family: inherit;
+        }
+        .text-input:focus { outline: none; border-color: #667eea; }
+        .text-input.locked {
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            border-color: #f59e0b;
+            color: #92400e;
+            font-weight: bold;
+            cursor: not-allowed;
+        }
+        .code-container {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 25px;
+            min-height: 70px;
+        }
+        .code-box {
+            width: 60px;
+            height: 70px;
+            border: 2px solid #ddd;
+            border-radius: 12px;
+            font-size: 32px;
+            font-weight: bold;
+            text-align: center;
+            color: #333;
+            background: #f9f9f9;
+            transition: all 0.3s;
+        }
+        .code-box:focus {
+            outline: none;
+            border-color: #667eea;
+            background: #fff;
+            box-shadow: 0 0 0 4px rgba(102,126,234,0.15);
+            transform: translateY(-3px);
+        }
+        .code-box.filled { border-color: #667eea; background: #fff; }
+        .code-box.fly-away { animation: flyAway 0.6s forwards; }
+        @keyframes flyAway {
+            0% { transform: translateY(0) rotate(0) scale(1); opacity: 1; }
+            50% { transform: translateY(-40px) rotate(15deg) scale(1.1); opacity: 0.8; }
+            100% { transform: translateY(-200px) rotate(45deg) scale(0.3); opacity: 0; }
+        }
+        .result-icon {
+            width: 90px; height: 90px;
+            margin: 0 auto 20px;
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .result-icon.show { display: flex; }
+        .result-icon.success { background: #d4f4dd; border: 3px solid #22c55e; }
+        .result-icon.special-success { background: #fef3c7; border: 3px solid #f59e0b; }
+        .result-icon.error { background: #fde2e2; border: 3px solid #ef4444; animation: shake 0.5s; }
+        @keyframes popIn {
+            0% { transform: scale(0); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+        .checkmark {
+            width: 40px; height: 40px;
+            stroke: #22c55e;
+            stroke-width: 4;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            fill: none;
+            stroke-dasharray: 100;
+            stroke-dashoffset: 100;
+            animation: drawCheck 0.5s 0.2s forwards;
+        }
+        .checkmark.gold { stroke: #f59e0b; }
+        @keyframes drawCheck { to { stroke-dashoffset: 0; } }
+        .crossmark {
+            width: 40px; height: 40px;
+            stroke: #ef4444;
+            stroke-width: 4;
+            stroke-linecap: round;
+            fill: none;
+        }
+        .crossmark line {
+            stroke-dasharray: 60;
+            stroke-dashoffset: 60;
+            animation: drawCross 0.3s forwards;
+        }
+        .crossmark line:nth-child(2) { animation-delay: 0.15s; }
+        @keyframes drawCross { to { stroke-dashoffset: 0; } }
+        .result-text {
+            font-size: 18px; font-weight: 600;
+            margin-bottom: 10px; display: none;
+        }
+        .result-text.show { display: block; }
+        .result-text.success { color: #22c55e; }
+        .result-text.special-success { color: #d97706; }
+        .result-text.error { color: #ef4444; }
+        .result-sub { font-size: 14px; color: #888; display: none; }
+        .result-sub.show { display: block; }
+        .redirect-bar {
+            width: 100%; height: 4px; background: #eee;
+            border-radius: 2px; overflow: hidden;
+            margin-top: 20px; display: none;
+        }
+        .redirect-bar.show { display: block; }
+        .redirect-fill {
+            height: 100%; background: #22c55e;
+            width: 0%; transition: width 2s linear;
+        }
+        .redirect-fill.gold { background: #f59e0b; }
+        .timer-box { margin-top: 20px; display: none; }
+        .timer-box.show { display: block; }
+        .timer {
+            font-size: 42px; font-weight: bold; color: #667eea;
+            animation: pulse 1s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+        }
+        .progress-bar {
+            width: 100%; height: 6px; background: #eee;
+            border-radius: 3px; overflow: hidden; margin-top: 10px;
+        }
+        .progress-fill {
+            height: 100%; background: #667eea;
+            width: 0%; transition: width 1s linear;
+        }
+        button {
+            width: 100%; padding: 14px;
+            background: #667eea; color: #fff;
+            border: none; border-radius: 12px;
+            font-size: 16px; cursor: pointer;
+            transition: background 0.3s;
+        }
+        button:hover:not(:disabled) { background: #5568d3; }
+        button:disabled { background: #ccc; cursor: not-allowed; }
+        button.special-btn {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+        }
+        button.special-btn:hover:not(:disabled) {
+            background: linear-gradient(135deg, #d97706, #b45309);
+        }
+        .hidden { display: none !important; }
+        .error-msg {
+            background: #fde2e2; color: #c0392b;
+            padding: 10px; border-radius: 8px;
+            font-size: 13px; margin-top: 10px;
+            display: none;
+        }
+        .error-msg.show { display: block; }
+        .special-hint {
+            margin-top: 15px;
+            padding: 12px;
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            border-radius: 10px;
+            font-size: 13px;
+            color: #92400e;
+            text-align: left;
+            display: none;
+        }
+        .special-hint.show { display: block; animation: popIn 0.4s; }
+        .special-hint b { color: #78350f; }
+    </style>
+</head>
+<body>
+    <div class="card" id="card">
+        <div class="crown-badge" id="crownBadge">👑 Создатель</div>
+
+        <div id="step1">
+            <h1 id="step1Title">Регистрация</h1>
+            <p class="subtitle">Заполните данные — код придёт на почту</p>
+
+            <div class="input-group">
+                <label>Ваше имя</label>
+                <input type="text" id="name" class="text-input"
+                       placeholder="Иван" maxlength="50" oninput="onFormInput()">
+            </div>
+
+            <div class="input-group">
+                <label>Ваш Gmail</label>
+                <input type="email" id="email" class="text-input"
+                       placeholder="you@gmail.com" oninput="onFormInput()">
+            </div>
+
+            <div class="special-hint" id="specialHint">
+                👑 <b>Обнаружен аккаунт создателя!</b><br>
+                Имя установлено автоматически.
+            </div>
+
+            <button id="sendBtn" onclick="sendCodeNow()" disabled>
+                Получить код
+            </button>
+
+            <div class="timer-box" id="timerBox">
+                <div class="timer" id="timer">5</div>
+                <div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+            </div>
+
+            <div class="error-msg" id="formError"></div>
+        </div>
+
+        <div id="step2" class="hidden">
+            <h1 id="step2Title">Введите код</h1>
+            <p class="subtitle" id="step2Subtitle">
+                Привет, <b id="userNameDisplay"></b>!<br>
+                Код отправлен на <b id="userEmail"></b>
+            </p>
+
+            <div class="code-container" id="codeContainer">
+                <input type="text" class="code-box" maxlength="1" inputmode="numeric">
+                <input type="text" class="code-box" maxlength="1" inputmode="numeric">
+                <input type="text" class="code-box" maxlength="1" inputmode="numeric">
+                <input type="text" class="code-box" maxlength="1" inputmode="numeric">
+            </div>
+
+            <div class="result-icon" id="resultIcon">
+                <svg class="checkmark" id="checkmark" viewBox="0 0 52 52">
+                    <polyline points="14,27 22,35 38,18"></polyline>
+                </svg>
+                <svg class="crossmark hidden" id="crossmark" viewBox="0 0 52 52">
+                    <line x1="16" y1="16" x2="36" y2="36"></line>
+                    <line x1="36" y1="16" x2="16" y2="36"></line>
+                </svg>
+            </div>
+
+            <div class="result-text" id="resultText"></div>
+            <div class="result-sub" id="resultSub"></div>
+
+            <div class="redirect-bar" id="redirectBar">
+                <div class="redirect-fill" id="redirectFill"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentEmail = '';
+        let currentName = '';
+        let isSpecialAccount = false;
+        let autoSendTimer = null;
+        let countdown = 5;
+        let formValid = false;
+        let isVerifying = false;
+        let emailCheckTimer = null;
+
+        const nameInput = document.getElementById('name');
+        const emailInput = document.getElementById('email');
+        const sendBtn = document.getElementById('sendBtn');
+        const timerBox = document.getElementById('timerBox');
+        const timerEl = document.getElementById('timer');
+        const progress = document.getElementById('progress');
+        const formError = document.getElementById('formError');
+        const codeBoxes = document.querySelectorAll('.code-box');
+        const card = document.getElementById('card');
+        const crownBadge = document.getElementById('crownBadge');
+        const specialHint = document.getElementById('specialHint');
+        const step1Title = document.getElementById('step1Title');
+        const step2Title = document.getElementById('step2Title');
+
+        function isValidEmail(email) {
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        }
+
+        function isValidName(name) {
+            return name.trim().length >= 2;
+        }
+
+        function showError(text) {
+            formError.textContent = text;
+            formError.classList.add('show');
+        }
+
+        function hideError() {
+            formError.classList.remove('show');
+        }
+
+        async function checkSpecialEmail(email) {
+            if (!isValidEmail(email)) return;
+            try {
+                const res = await fetch('/api/check-email', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+                const data = await res.json();
+
+                if (data.special) {
+                    isSpecialAccount = true;
+                    nameInput.value = data.name;
+                    nameInput.classList.add('locked');
+                    nameInput.readOnly = true;
+
+                    crownBadge.classList.add('show');
+                    specialHint.classList.add('show');
+                    card.classList.add('special-mode');
+                    document.body.classList.add('special-mode');
+                    sendBtn.classList.add('special-btn');
+                    step1Title.textContent = `👑 Добро пожаловать, ${data.name}!`;
+
+                    onFormInput();
+                } else {
+                    isSpecialAccount = false;
+                    nameInput.classList.remove('locked');
+                    nameInput.readOnly = false;
+
+                    crownBadge.classList.remove('show');
+                    specialHint.classList.remove('show');
+                    card.classList.remove('special-mode');
+                    document.body.classList.remove('special-mode');
+                    sendBtn.classList.remove('special-btn');
+                    step1Title.textContent = 'Регистрация';
+                }
+            } catch (err) {
+                console.error('Ошибка проверки email:', err);
+            }
+        }
+
+        function onFormInput() {
+            const email = emailInput.value.trim();
+            const name = nameInput.value.trim();
+            const valid = isValidEmail(email) && isValidName(name);
+            hideError();
+
+            if (emailCheckTimer) clearTimeout(emailCheckTimer);
+            if (isValidEmail(email)) {
+                emailCheckTimer = setTimeout(() => checkSpecialEmail(email), 300);
+            }
+
+            if (valid && !formValid) {
+                formValid = true;
+                sendBtn.disabled = false;
+                startCountdown(email, name);
+            } else if (!valid && formValid) {
+                formValid = false;
+                sendBtn.disabled = true;
+                cancelCountdown();
+                timerBox.classList.remove('show');
+            } else if (valid && formValid &&
+                       (currentEmail !== email || currentName !== name)) {
+                cancelCountdown();
+                startCountdown(email, name);
+            }
+        }
+
+        function startCountdown(email, name) {
+            currentEmail = email;
+            currentName = name;
+            countdown = 5;
+            timerBox.classList.add('show');
+            timerEl.textContent = countdown;
+            progress.style.width = '0%';
+            setTimeout(() => progress.style.width = '100%', 50);
+
+            autoSendTimer = setInterval(() => {
+                countdown--;
+                timerEl.textContent = countdown;
+                if (countdown <= 0) {
+                    cancelCountdown();
+                    sendCodeNow();
+                }
+            }, 1000);
+        }
+
+        function cancelCountdown() {
+            if (autoSendTimer) clearInterval(autoSendTimer);
+            autoSendTimer = null;
+        }
+
+        function sendCodeNow() {
+            cancelCountdown();
+            timerBox.classList.remove('show');
+            const email = emailInput.value.trim();
+            const name = nameInput.value.trim();
+            if (!isValidEmail(email) || !isValidName(name)) return;
+            currentEmail = email;
+            currentName = name;
+            sendCodeRequest(email, name);
+        }
+
+        async function sendCodeRequest(email, name) {
+            try {
+                const res = await fetch('/api/send-code', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, name })
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    document.getElementById('step1').classList.add('hidden');
+                    document.getElementById('step2').classList.remove('hidden');
+
+                    const displayName = data.isSpecial
+                        ? `${data.name} (${data.role})`
+                        : data.name;
+
+                    document.getElementById('userEmail').textContent = email;
+                    document.getElementById('userNameDisplay').textContent = displayName;
+
+                    if (data.isSpecial) {
+                        step2Title.textContent = `👑 Добро пожаловать, ${data.name}!`;
+                        document.getElementById('step2Subtitle').innerHTML =
+                            `Вы вошли как <b>${data.name} (${data.role})</b><br>` +
+                            `Код отправлен на <b>${email}</b>`;
+                    } else {
+                        step2Title.textContent = 'Введите код';
+                        document.getElementById('step2Subtitle').innerHTML =
+                            `Привет, <b>${data.name}</b>!<br>` +
+                            `Код отправлен на <b>${email}</b>`;
+                    }
+
+                    codeBoxes[0].focus();
+                } else {
+                    showError(data.error || 'Ошибка отправки');
+                    formValid = false;
+                    sendBtn.disabled = true;
+                }
+            } catch (err) {
+                showError('Ошибка сервера');
+            }
+        }
+
+        codeBoxes.forEach((box, index) => {
+            box.addEventListener('input', (e) => {
+                const value = e.target.value.replace(/\D/g, '');
+                e.target.value = value;
+                if (value) {
+                    box.classList.add('filled');
+                    if (index < codeBoxes.length - 1) codeBoxes[index + 1].focus();
+                    else checkIfComplete();
+                } else {
+                    box.classList.remove('filled');
+                }
+            });
+
+            box.addEventListener('keydown', (e) => {
+                if (e.key === 'Backspace' && !e.target.value && index > 0) {
+                    codeBoxes[index - 1].focus();
+                    codeBoxes[index - 1].value = '';
+                    codeBoxes[index - 1].classList.remove('filled');
+                }
+            });
+
+            box.addEventListener('paste', (e) => {
+                e.preventDefault();
+                const pasted = e.clipboardData.getData('text').replace(/\D/g, '');
+                if (pasted.length === 4) {
+                    codeBoxes.forEach((b, i) => {
+                        b.value = pasted[i];
+                        b.classList.add('filled');
+                    });
+                    checkIfComplete();
+                }
+            });
+        });
+
+        function checkIfComplete() {
+            const code = Array.from(codeBoxes).map(b => b.value).join('');
+            if (code.length === 4 && !isVerifying) verifyCode(code);
+        }
+
+        async function verifyCode(code) {
+            isVerifying = true;
+            codeBoxes.forEach((box, i) => setTimeout(() => box.classList.add('fly-away'), i * 100));
+            await new Promise(r => setTimeout(r, 800));
+            document.getElementById('codeContainer').style.display = 'none';
+
+            try {
+                const res = await fetch('/api/verify-code', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: currentEmail, code })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    showSuccess(data.name, data.isSpecial, data.role);
+                } else {
+                    showError2(data.error || 'Неверный код');
+                }
+            } catch (err) {
+                showError2('Ошибка сервера');
+            }
+        }
+
+        function showSuccess(name, isSpecial, role) {
+            const icon = document.getElementById('resultIcon');
+            const checkmark = document.getElementById('checkmark');
+            const text = document.getElementById('resultText');
+            const sub = document.getElementById('resultSub');
+            const fill = document.getElementById('redirectFill');
+
+            icon.className = isSpecial
+                ? 'result-icon special-success show'
+                : 'result-icon success show';
+            checkmark.classList.toggle('gold', isSpecial);
+            document.getElementById('crossmark').classList.add('hidden');
+
+            text.className = isSpecial
+                ? 'result-text special-success show'
+                : 'result-text success show';
+
+            if (isSpecial) {
+                text.textContent = `👑 Добро пожаловать, ${name} (${role})!`;
+                sub.textContent = 'Вход создателя... ждите перехода';
+                fill.classList.add('gold');
+            } else {
+                text.textContent = `✓ Добро пожаловать, ${name}!`;
+                sub.textContent = 'Ждите перехода...';
+            }
+            sub.className = 'result-sub show';
+
+            document.getElementById('redirectBar').classList.add('show');
+            setTimeout(() => fill.style.width = '100%', 100);
+            setTimeout(() => window.location.href = 'https://www.google.com', 2000);
+        }
+
+        function showError2(message) {
+            document.getElementById('resultIcon').className = 'result-icon error show';
+            document.getElementById('checkmark').classList.add('hidden');
+            document.getElementById('crossmark').classList.remove('hidden');
+            document.getElementById('resultText').className = 'result-text error show';
+            document.getElementById('resultText').textContent = '✕ Код неверный';
+            document.getElementById('resultSub').className = 'result-sub show';
+            document.getElementById('resultSub').textContent = message;
+            setTimeout(() => resetCodeInput(), 2000);
+        }
+
+        function resetCodeInput() {
+            isVerifying = false;
+            document.getElementById('resultIcon').className = 'result-icon';
+            document.getElementById('resultText').className = 'result-text';
+            document.getElementById('resultSub').className = 'result-sub';
+            document.getElementById('codeContainer').style.display = 'flex';
+            codeBoxes.forEach(box => {
+                box.classList.remove('fly-away', 'filled');
+                box.value = '';
+            });
+            codeBoxes[0].focus();
+        }
+    </script>
+</body>
+</html>
