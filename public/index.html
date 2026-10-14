@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Регистрация</title>
+    <title>Вход / Регистрация</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -13,16 +13,13 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            overflow: hidden;
             padding: 20px;
             transition: background 0.5s;
         }
-        body.special-mode {
-            background: linear-gradient(135deg, #f59e0b, #d97706);
-        }
+        body.special-mode { background: linear-gradient(135deg, #f59e0b, #d97706); }
         .card {
             background: #fff;
-            padding: 40px;
+            padding: 35px;
             border-radius: 20px;
             box-shadow: 0 25px 70px rgba(0,0,0,0.3);
             width: 100%;
@@ -54,9 +51,38 @@
         .subtitle { color: #888; font-size: 14px; margin-bottom: 25px; }
         .subtitle b { color: #667eea; }
         .card.special-mode .subtitle b { color: #d97706; }
+
+        .tabs {
+            display: flex;
+            background: #f0f0f5;
+            border-radius: 12px;
+            padding: 4px;
+            margin-bottom: 25px;
+        }
+        .tab {
+            flex: 1;
+            padding: 10px;
+            border-radius: 9px;
+            border: none;
+            background: transparent;
+            font-size: 14px;
+            font-weight: 600;
+            color: #888;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+        .tab.active {
+            background: #fff;
+            color: #667eea;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .card.special-mode .tab.active { color: #d97706; }
+
         .input-group {
             text-align: left;
             margin-bottom: 15px;
+            position: relative;
         }
         .input-group label {
             display: block;
@@ -82,6 +108,105 @@
             font-weight: bold;
             cursor: not-allowed;
         }
+
+        .pwd-bar {
+            height: 5px;
+            background: #eee;
+            border-radius: 3px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+        .pwd-fill {
+            height: 100%;
+            width: 0%;
+            transition: all 0.3s;
+        }
+        .pwd-fill.weak { background: #ef4444; width: 33%; }
+        .pwd-fill.medium { background: #f59e0b; width: 66%; }
+        .pwd-fill.strong { background: #22c55e; width: 100%; }
+
+        .pwd-rules {
+            margin-top: 10px;
+            text-align: left;
+            font-size: 12px;
+            color: #888;
+            display: none;
+        }
+        .pwd-rules.show { display: block; }
+        .pwd-rule {
+            padding: 3px 0;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .pwd-rule.ok { color: #22c55e; }
+        .pwd-rule.fail { color: #ef4444; }
+
+        .license {
+            margin-top: 15px;
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 12px;
+            text-align: left;
+            max-height: 120px;
+            overflow-y: auto;
+            font-size: 12px;
+            color: #555;
+            line-height: 1.5;
+            border: 1px solid #eee;
+            display: none;
+        }
+        .license.show { display: block; animation: popIn 0.4s; }
+        .license h3 { font-size: 13px; color: #333; margin-bottom: 8px; }
+        .license p { margin-bottom: 6px; }
+
+        .checkbox-label {
+            display: none;
+            align-items: flex-start;
+            gap: 10px;
+            margin-top: 12px;
+            font-size: 13px;
+            color: #555;
+            cursor: pointer;
+            text-align: left;
+        }
+        .checkbox-label.show { display: flex; animation: popIn 0.4s; }
+        .checkbox-label input {
+            margin-top: 3px;
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        button.main-btn {
+            width: 100%;
+            padding: 14px;
+            background: #667eea;
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s;
+            font-family: inherit;
+            font-weight: 600;
+            margin-top: 15px;
+        }
+        button.main-btn:hover:not(:disabled) { background: #5568d3; }
+        button.main-btn:disabled { background: #ccc; cursor: not-allowed; }
+        button.main-btn.special-btn { background: linear-gradient(135deg, #f59e0b, #d97706); }
+        button.main-btn.special-btn:hover:not(:disabled) { background: linear-gradient(135deg, #d97706, #b45309); }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 20px 0;
+        }
+        .divider-line { flex: 1; height: 1px; background: #eee; }
+        .divider-text { color: #999; font-size: 13px; }
+
         .code-container {
             display: flex;
             justify-content: center;
@@ -110,13 +235,16 @@
         }
         .code-box.filled { border-color: #667eea; background: #fff; }
         .code-box.fly-away { animation: flyAway 0.6s forwards; }
+
         @keyframes flyAway {
             0% { transform: translateY(0) rotate(0) scale(1); opacity: 1; }
             50% { transform: translateY(-40px) rotate(15deg) scale(1.1); opacity: 0.8; }
             100% { transform: translateY(-200px) rotate(45deg) scale(0.3); opacity: 0; }
         }
+
         .result-icon {
-            width: 90px; height: 90px;
+            width: 90px;
+            height: 90px;
             margin: 0 auto 20px;
             border-radius: 50%;
             display: none;
@@ -128,6 +256,7 @@
         .result-icon.success { background: #d4f4dd; border: 3px solid #22c55e; }
         .result-icon.special-success { background: #fef3c7; border: 3px solid #f59e0b; }
         .result-icon.error { background: #fde2e2; border: 3px solid #ef4444; animation: shake 0.5s; }
+
         @keyframes popIn {
             0% { transform: scale(0); opacity: 0; }
             100% { transform: scale(1); opacity: 1; }
@@ -138,7 +267,8 @@
             75% { transform: translateX(10px); }
         }
         .checkmark {
-            width: 40px; height: 40px;
+            width: 40px;
+            height: 40px;
             stroke: #22c55e;
             stroke-width: 4;
             stroke-linecap: round;
@@ -151,7 +281,8 @@
         .checkmark.gold { stroke: #f59e0b; }
         @keyframes drawCheck { to { stroke-dashoffset: 0; } }
         .crossmark {
-            width: 40px; height: 40px;
+            width: 40px;
+            height: 40px;
             stroke: #ef4444;
             stroke-width: 4;
             stroke-linecap: round;
@@ -164,66 +295,78 @@
         }
         .crossmark line:nth-child(2) { animation-delay: 0.15s; }
         @keyframes drawCross { to { stroke-dashoffset: 0; } }
+
         .result-text {
-            font-size: 18px; font-weight: 600;
-            margin-bottom: 10px; display: none;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            display: none;
         }
         .result-text.show { display: block; }
         .result-text.success { color: #22c55e; }
         .result-text.special-success { color: #d97706; }
         .result-text.error { color: #ef4444; }
+
         .result-sub { font-size: 14px; color: #888; display: none; }
         .result-sub.show { display: block; }
+
         .redirect-bar {
-            width: 100%; height: 4px; background: #eee;
-            border-radius: 2px; overflow: hidden;
-            margin-top: 20px; display: none;
+            width: 100%;
+            height: 4px;
+            background: #eee;
+            border-radius: 2px;
+            overflow: hidden;
+            margin-top: 20px;
+            display: none;
         }
         .redirect-bar.show { display: block; }
         .redirect-fill {
-            height: 100%; background: #22c55e;
-            width: 0%; transition: width 2s linear;
+            height: 100%;
+            background: #22c55e;
+            width: 0%;
+            transition: width 2s linear;
         }
         .redirect-fill.gold { background: #f59e0b; }
+
         .timer-box { margin-top: 20px; display: none; }
         .timer-box.show { display: block; }
         .timer {
-            font-size: 42px; font-weight: bold; color: #667eea;
+            font-size: 42px;
+            font-weight: bold;
+            color: #667eea;
             animation: pulse 1s infinite;
         }
+        .card.special-mode .timer { color: #d97706; }
         @keyframes pulse {
             0%, 100% { transform: scale(1); }
             50% { transform: scale(1.15); }
         }
         .progress-bar {
-            width: 100%; height: 6px; background: #eee;
-            border-radius: 3px; overflow: hidden; margin-top: 10px;
+            width: 100%;
+            height: 6px;
+            background: #eee;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 10px;
         }
         .progress-fill {
-            height: 100%; background: #667eea;
-            width: 0%; transition: width 1s linear;
+            height: 100%;
+            background: #667eea;
+            width: 0%;
+            transition: width 1s linear;
         }
-        button {
-            width: 100%; padding: 14px;
-            background: #667eea; color: #fff;
-            border: none; border-radius: 12px;
-            font-size: 16px; cursor: pointer;
-            transition: background 0.3s;
-        }
-        button:hover:not(:disabled) { background: #5568d3; }
-        button:disabled { background: #ccc; cursor: not-allowed; }
-        button.special-btn {
-            background: linear-gradient(135deg, #f59e0b, #d97706);
-        }
-        button.special-btn:hover:not(:disabled) {
-            background: linear-gradient(135deg, #d97706, #b45309);
-        }
+        .card.special-mode .progress-fill { background: #d97706; }
+
         .hidden { display: none !important; }
         .error-msg {
-            background: #fde2e2; color: #c0392b;
-            padding: 10px; border-radius: 8px;
-            font-size: 13px; margin-top: 10px;
+            background: #fde2e2;
+            color: #c0392b;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-top: 10px;
             display: none;
+            text-align: left;
         }
         .error-msg.show { display: block; }
         .special-hint {
@@ -245,19 +388,37 @@
         <div class="crown-badge" id="crownBadge">👑 Создатель</div>
 
         <div id="step1">
-            <h1 id="step1Title">Регистрация</h1>
-            <p class="subtitle">Заполните данные — код придёт на почту</p>
+            <h1 id="step1Title">Добро пожаловать</h1>
+            <p class="subtitle">Войдите или создайте аккаунт</p>
 
-            <div class="input-group">
+            <div class="tabs">
+                <button class="tab active" id="tabLogin" onclick="switchTab('login')">Вход</button>
+                <button class="tab" id="tabRegister" onclick="switchTab('register')">Регистрация</button>
+            </div>
+
+            <div class="input-group hidden" id="nameGroup">
                 <label>Ваше имя</label>
                 <input type="text" id="name" class="text-input"
                        placeholder="Иван" maxlength="50" oninput="onFormInput()">
             </div>
 
             <div class="input-group">
-                <label>Ваш Gmail</label>
+                <label>Gmail</label>
                 <input type="email" id="email" class="text-input"
                        placeholder="you@gmail.com" oninput="onFormInput()">
+            </div>
+
+            <div class="input-group">
+                <label>Пароль</label>
+                <input type="password" id="password" class="text-input"
+                       placeholder="••••••••" oninput="onPasswordInput()">
+                <div class="pwd-bar"><div class="pwd-fill" id="pwdFill"></div></div>
+                <div class="pwd-rules" id="pwdRules">
+                    <div class="pwd-rule" data-rule="length">◯ Минимум 8 символов</div>
+                    <div class="pwd-rule" data-rule="upper">◯ Заглавная буква</div>
+                    <div class="pwd-rule" data-rule="lower">◯ Строчная буква</div>
+                    <div class="pwd-rule" data-rule="digit">◯ Цифра</div>
+                </div>
             </div>
 
             <div class="special-hint" id="specialHint">
@@ -265,9 +426,32 @@
                 Имя установлено автоматически.
             </div>
 
-            <button id="sendBtn" onclick="sendCodeNow()" disabled>
+            <div class="license" id="licenseBox">
+                <h3>📜 Пользовательское соглашение</h3>
+                <p>Регистрируясь на сайте, вы соглашаетесь с:</p>
+                <p>1. Обработкой вашего email для отправки кодов подтверждения.</p>
+                <p>2. Хранением имени и email в базе сайта.</p>
+                <p>3. Использованием сайта в личных целях.</p>
+                <p>4. Запретом на передачу данных третьим лицам.</p>
+                <p>5. Возможностью удалить аккаунт по запросу.</p>
+            </div>
+
+            <label class="checkbox-label" id="licenseCheckLabel">
+                <input type="checkbox" id="licenseCheck" onchange="onFormInput()">
+                <span>Я согласен с условиями использования и обработкой персональных данных</span>
+            </label>
+
+            <button id="sendBtn" class="main-btn" onclick="sendCodeNow()" disabled>
                 Получить код
             </button>
+
+            <div class="divider">
+                <div class="divider-line"></div>
+                <span class="divider-text">или</span>
+                <div class="divider-line"></div>
+            </div>
+
+            <div id="telegramBtn" style="display: flex; justify-content: center; min-height: 40px;"></div>
 
             <div class="timer-box" id="timerBox">
                 <div class="timer" id="timer">5</div>
@@ -280,7 +464,6 @@
         <div id="step2" class="hidden">
             <h1 id="step2Title">Введите код</h1>
             <p class="subtitle" id="step2Subtitle">
-                Привет, <b id="userNameDisplay"></b>!<br>
                 Код отправлен на <b id="userEmail"></b>
             </p>
 
@@ -313,15 +496,20 @@
     <script>
         let currentEmail = '';
         let currentName = '';
+        let currentMode = 'login';
         let isSpecialAccount = false;
         let autoSendTimer = null;
         let countdown = 5;
         let formValid = false;
         let isVerifying = false;
         let emailCheckTimer = null;
+        let userExists = false;
+        let telegramConfig = null;
 
         const nameInput = document.getElementById('name');
         const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const licenseCheck = document.getElementById('licenseCheck');
         const sendBtn = document.getElementById('sendBtn');
         const timerBox = document.getElementById('timerBox');
         const timerEl = document.getElementById('timer');
@@ -333,13 +521,33 @@
         const specialHint = document.getElementById('specialHint');
         const step1Title = document.getElementById('step1Title');
         const step2Title = document.getElementById('step2Title');
+        const pwdFill = document.getElementById('pwdFill');
+        const pwdRules = document.getElementById('pwdRules');
+        const licenseBox = document.getElementById('licenseBox');
+        const licenseCheckLabel = document.getElementById('licenseCheckLabel');
+        const nameGroup = document.getElementById('nameGroup');
 
+        // ===== УТИЛИТЫ =====
         function isValidEmail(email) {
             return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
         }
 
         function isValidName(name) {
             return name.trim().length >= 2;
+        }
+
+        function pwdChecks(pwd) {
+            return {
+                length: pwd.length >= 8,
+                upper: /[A-Z]/.test(pwd),
+                lower: /[a-z]/.test(pwd),
+                digit: /[0-9]/.test(pwd)
+            };
+        }
+
+        function isStrongPassword(pwd) {
+            const c = pwdChecks(pwd);
+            return c.length && c.upper && c.lower && c.digit;
         }
 
         function showError(text) {
@@ -351,6 +559,37 @@
             formError.classList.remove('show');
         }
 
+        // ===== ТАБЫ =====
+        function switchTab(mode) {
+            currentMode = mode;
+            const isLogin = mode === 'login';
+
+            document.getElementById('tabLogin').classList.toggle('active', isLogin);
+            document.getElementById('tabRegister').classList.toggle('active', !isLogin);
+
+            nameGroup.classList.toggle('hidden', isLogin);
+            licenseBox.classList.toggle('show', !isLogin);
+            licenseCheckLabel.classList.toggle('show', !isLogin);
+
+            cancelCountdown();
+            timerBox.classList.remove('show');
+            formValid = false;
+            sendBtn.disabled = true;
+            hideError();
+
+            if (!isLogin) {
+                pwdRules.classList.add('show');
+            } else {
+                pwdRules.classList.remove('show');
+            }
+
+            step1Title.textContent = isLogin ? 'Вход' : 'Регистрация';
+
+            onFormInput();
+            updateTelegramButton();
+        }
+
+        // ===== EMAIL =====
         async function checkSpecialEmail(email) {
             if (!isValidEmail(email)) return;
             try {
@@ -361,41 +600,75 @@
                 });
                 const data = await res.json();
 
+                userExists = data.exists;
+
                 if (data.special) {
                     isSpecialAccount = true;
-                    nameInput.value = data.name;
-                    nameInput.classList.add('locked');
-                    nameInput.readOnly = true;
-
+                    if (currentMode === 'register') {
+                        nameInput.value = data.name;
+                        nameInput.classList.add('locked');
+                        nameInput.readOnly = true;
+                    }
                     crownBadge.classList.add('show');
                     specialHint.classList.add('show');
                     card.classList.add('special-mode');
                     document.body.classList.add('special-mode');
                     sendBtn.classList.add('special-btn');
                     step1Title.textContent = `👑 Добро пожаловать, ${data.name}!`;
-
-                    onFormInput();
                 } else {
                     isSpecialAccount = false;
                     nameInput.classList.remove('locked');
                     nameInput.readOnly = false;
-
                     crownBadge.classList.remove('show');
                     specialHint.classList.remove('show');
                     card.classList.remove('special-mode');
                     document.body.classList.remove('special-mode');
                     sendBtn.classList.remove('special-btn');
-                    step1Title.textContent = 'Регистрация';
+                    step1Title.textContent = currentMode === 'login' ? 'Вход' : 'Регистрация';
                 }
+                onFormInput();
             } catch (err) {
                 console.error('Ошибка проверки email:', err);
             }
         }
 
+        // ===== ПАРОЛЬ =====
+        function onPasswordInput() {
+            const pwd = passwordInput.value;
+            const checks = pwdChecks(pwd);
+
+            const done = Object.values(checks).filter(Boolean).length;
+            if (pwd.length === 0) {
+                pwdFill.className = 'pwd-fill';
+            } else if (done <= 2) {
+                pwdFill.className = 'pwd-fill weak';
+            } else if (done === 3) {
+                pwdFill.className = 'pwd-fill medium';
+            } else {
+                pwdFill.className = 'pwd-fill strong';
+            }
+
+            if (currentMode === 'register') {
+                document.querySelectorAll('.pwd-rule').forEach(rule => {
+                    const key = rule.dataset.rule;
+                    const ok = checks[key];
+                    const base = rule.textContent.replace(/^[✓◯]\s/, '');
+                    rule.classList.toggle('ok', ok);
+                    rule.classList.toggle('fail', !ok && pwd.length > 0);
+                    rule.textContent = (ok ? '✓ ' : '◯ ') + base;
+                });
+            }
+
+            onFormInput();
+        }
+
+        // ===== ФОРМА =====
         function onFormInput() {
             const email = emailInput.value.trim();
             const name = nameInput.value.trim();
-            const valid = isValidEmail(email) && isValidName(name);
+            const password = passwordInput.value;
+            const license = licenseCheck.checked;
+
             hideError();
 
             if (emailCheckTimer) clearTimeout(emailCheckTimer);
@@ -403,23 +676,26 @@
                 emailCheckTimer = setTimeout(() => checkSpecialEmail(email), 300);
             }
 
+            let valid = isValidEmail(email) && password.length > 0;
+
+            if (currentMode === 'register') {
+                valid = valid && isValidName(name) && isStrongPassword(password) && license;
+            }
+
             if (valid && !formValid) {
                 formValid = true;
                 sendBtn.disabled = false;
-                startCountdown(email, name);
+                startCountdown(email, name, password);
             } else if (!valid && formValid) {
                 formValid = false;
                 sendBtn.disabled = true;
                 cancelCountdown();
                 timerBox.classList.remove('show');
-            } else if (valid && formValid &&
-                       (currentEmail !== email || currentName !== name)) {
-                cancelCountdown();
-                startCountdown(email, name);
             }
         }
 
-        function startCountdown(email, name) {
+        function startCountdown(email, name, password) {
+            if (autoSendTimer) return;
             currentEmail = email;
             currentName = name;
             countdown = 5;
@@ -448,18 +724,24 @@
             timerBox.classList.remove('show');
             const email = emailInput.value.trim();
             const name = nameInput.value.trim();
-            if (!isValidEmail(email) || !isValidName(name)) return;
+            const password = passwordInput.value;
+            if (!isValidEmail(email) || !password) return;
             currentEmail = email;
             currentName = name;
-            sendCodeRequest(email, name);
+            sendCodeRequest(email, name, password);
         }
 
-        async function sendCodeRequest(email, name) {
+        async function sendCodeRequest(email, name, password) {
             try {
                 const res = await fetch('/api/send-code', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, name })
+                    body: JSON.stringify({
+                        email,
+                        name: name || 'друг',
+                        password,
+                        mode: currentMode
+                    })
                 });
                 const data = await res.json();
 
@@ -467,36 +749,27 @@
                     document.getElementById('step1').classList.add('hidden');
                     document.getElementById('step2').classList.remove('hidden');
 
-                    const displayName = data.isSpecial
-                        ? `${data.name} (${data.role})`
-                        : data.name;
-
                     document.getElementById('userEmail').textContent = email;
-                    document.getElementById('userNameDisplay').textContent = displayName;
-
-                    if (data.isSpecial) {
-                        step2Title.textContent = `👑 Добро пожаловать, ${data.name}!`;
-                        document.getElementById('step2Subtitle').innerHTML =
-                            `Вы вошли как <b>${data.name} (${data.role})</b><br>` +
-                            `Код отправлен на <b>${email}</b>`;
-                    } else {
-                        step2Title.textContent = 'Введите код';
-                        document.getElementById('step2Subtitle').innerHTML =
-                            `Привет, <b>${data.name}</b>!<br>` +
-                            `Код отправлен на <b>${email}</b>`;
-                    }
+                    step2Title.textContent = currentMode === 'login'
+                        ? 'Введите код для входа'
+                        : 'Введите код для регистрации';
 
                     codeBoxes[0].focus();
                 } else {
                     showError(data.error || 'Ошибка отправки');
                     formValid = false;
                     sendBtn.disabled = true;
+                    currentEmail = '';
                 }
             } catch (err) {
                 showError('Ошибка сервера');
+                formValid = false;
+                sendBtn.disabled = true;
+                currentEmail = '';
             }
         }
 
+        // ===== КОД =====
         codeBoxes.forEach((box, index) => {
             box.addEventListener('input', (e) => {
                 const value = e.target.value.replace(/\D/g, '');
@@ -550,7 +823,7 @@
                 });
                 const data = await res.json();
                 if (data.success) {
-                    showSuccess(data.name, data.isSpecial, data.role);
+                    showSuccess(data.name, data.isSpecial, data.role, data.mode);
                 } else {
                     showError2(data.error || 'Неверный код');
                 }
@@ -559,7 +832,7 @@
             }
         }
 
-        function showSuccess(name, isSpecial, role) {
+        function showSuccess(name, isSpecial, role, mode) {
             const icon = document.getElementById('resultIcon');
             const checkmark = document.getElementById('checkmark');
             const text = document.getElementById('resultText');
@@ -576,12 +849,14 @@
                 ? 'result-text special-success show'
                 : 'result-text success show';
 
+            const action = mode === 'register' ? 'Регистрация успешна' : 'Вход выполнен';
+
             if (isSpecial) {
-                text.textContent = `👑 Добро пожаловать, ${name} (${role})!`;
+                text.textContent = `👑 ${action}, ${name} (${role})!`;
                 sub.textContent = 'Вход создателя... ждите перехода';
                 fill.classList.add('gold');
             } else {
-                text.textContent = `✓ Добро пожаловать, ${name}!`;
+                text.textContent = `✓ ${action}, ${name}!`;
                 sub.textContent = 'Ждите перехода...';
             }
             sub.className = 'result-sub show';
@@ -614,6 +889,42 @@
             });
             codeBoxes[0].focus();
         }
+
+        // ===== TELEGRAM =====
+        async function loadTelegramConfig() {
+            try {
+                const res = await fetch('/api/config');
+                telegramConfig = await res.json();
+                updateTelegramButton();
+            } catch (err) {
+                console.error('Не удалось загрузить конфиг Telegram');
+            }
+        }
+
+        function updateTelegramButton() {
+            const container = document.getElementById('telegramBtn');
+            if (!container) return;
+
+            if (!telegramConfig || !telegramConfig.telegramBotUsername) {
+                container.innerHTML = '<span style="color: #999; font-size: 12px;">Telegram временно недоступен</span>';
+                return;
+            }
+
+            container.innerHTML = '';
+            const script = document.createElement('script');
+            script.async = true;
+            script.src = 'https://telegram.org/js/telegram-widget.js?22';
+            script.setAttribute('data-telegram-login', telegramConfig.telegramBotUsername);
+            script.setAttribute('data-size', 'large');
+            script.setAttribute('data-radius', '12');
+            script.setAttribute('data-auth-url', window.location.origin + '/api/auth/telegram');
+            script.setAttribute('data-request-access', 'write');
+            container.appendChild(script);
+        }
+
+        // ===== СТАРТ =====
+        switchTab('login');
+        loadTelegramConfig();
     </script>
 </body>
 </html>
